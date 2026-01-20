@@ -50,24 +50,46 @@ FROM orders;
 SELECT customer_id, COUNT(*) AS jumlah_pesanan
 FROM orders
 GROUP BY customer_id;
+
+-- JOIN: Total belanja per pelanggan
+SELECT c.customer_name,
+       COUNT(o.order_id) AS total_orders,
+       SUM(o.total_amount) AS total_spent
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_name
+ORDER BY total_spent DESC;
 ```
 
 ## 4. Insights
 
-Beberapa insight yang diperoleh dari hasil query:
+Berdasarkan hasil analisis SQL, diperoleh beberapa insight penting:
 
-* Total omzet menunjukkan performa penjualan keseluruhan
-* Produk dengan harga tinggi berpotensi memberikan margin besar
-* Pelanggan dengan jumlah pesanan terbanyak berpotensi menjadi pelanggan loyal
-* Data tanggal pesanan dapat digunakan untuk analisis tren
+* Sebagian kecil pelanggan menyumbang porsi omzet terbesar (high-value customers)
+* Produk dengan harga tinggi berkontribusi signifikan terhadap total omzet
+* Terdapat pelanggan dengan frekuensi pemesanan tinggi yang berpotensi menjadi pelanggan loyal
+* Data pemesanan setelah Januari 2024 menunjukkan potensi peningkatan aktivitas transaksi
+
+Insight ini menunjukkan bahwa strategi bisnis sebaiknya tidak hanya fokus pada volume pesanan, tetapi juga pada nilai transaksi.
 
 ## 5. Business Recommendations
 
-* Fokuskan promosi pada produk dengan harga tinggi dan permintaan stabil
-* Berikan program loyalitas untuk pelanggan dengan pesanan terbanyak
-* Analisis lebih lanjut tren bulanan untuk perencanaan campaign
+Berdasarkan insight di atas, rekomendasi bisnis yang dapat diberikan:
+
+1. **Program Loyalitas Pelanggan**
+   Berikan reward khusus untuk pelanggan dengan total belanja tertinggi
+
+2. **Fokus Produk High-Value**
+   Tingkatkatkan promosi pada produk dengan harga tinggi dan margin besar
+
+3. **Customer Retention Strategy**
+   Lakukan follow-up marketing kepada pelanggan aktif setelah Januari 2024
+
+4. **Analisis Lanjutan**
+   Disarankan analisis lanjutan berbasis waktu (bulanan / kuartalan) untuk melihat tren penjualan
 
 ---
 
-📌 **Tools**: SQL, GitHub
+📌 **Tools**: SQL (MySQL / PostgreSQL)
+📌 **Skill Highlighted**: Data Analysis, Aggregation, JOIN, Business Insight
 📌 **Level**: Beginner – Intermediate
