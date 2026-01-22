@@ -10,6 +10,7 @@ Tujuan analisis ini adalah:
 * Mengidentifikasi produk dengan harga tertinggi
 * Menganalisis jumlah pesanan tiap pelanggan
 * Melihat tren tanggal pemesanan
+* Mengetahui produk paling populer per pelanggan dan per bulan
 
 ## 2. Dataset
 
@@ -17,48 +18,69 @@ Dataset yang digunakan merupakan simulasi database e-commerce sederhana dengan t
 
 * **customers** (customer_id, customer_name, email)
 * **products** (product_id, product_name, price)
-* **orders** (order_id, customer_id, order_date, total_amount)
+* **orders** (order_id, customer_id, product_id, order_date, total_amount)
 
 Dataset disimpan dalam database SQL (MySQL / PostgreSQL / SQLite).
 
 ## 3. SQL Queries
 
 ```sql
--- Menampilkan semua pelanggan
-SELECT * FROM customers;
-
--- Produk dengan harga di atas 500.000
-SELECT product_name, price
-FROM products
-WHERE price > 500000;
-
--- Pesanan setelah 12 Januari 2024
-SELECT customer_id, order_date
-FROM orders
-WHERE order_date > '2024-01-12';
-
--- Produk diurutkan dari harga tertinggi
-SELECT product_name, price
-FROM products
-ORDER BY price DESC;
-
--- Total omzet
-SELECT SUM(total_amount) AS total_omzet
-FROM orders;
-
--- Jumlah pesanan tiap pelanggan
-SELECT customer_id, COUNT(*) AS jumlah_pesanan
-FROM orders
-GROUP BY customer_id;
-
--- JOIN: Total belanja per pelanggan
-SELECT c.customer_name,
-       COUNT(o.order_id) AS total_orders,
-       SUM(o.total_amount) AS total_spent
-FROM customers c
-JOIN orders o ON c.customer_id = o.customer_id
-GROUP BY c.customer_name
-ORDER BY total_spent DESC;
+--Tampilkan semua data pelanggan--
+select * from customers;
+select * from products;
+select * from orders;
+select * from order_items;
+--Tampilkan nama produk dan harga--
+select product_name, price from products;
+--Tampilkan produk dengan harga di atas 500.000--
+select product_name, price from products
+where price > '500000';
+--Tampilkan pesanan setelah tanggal 2024-01-12--;
+select order_id, order_date from orders
+where order_date > '2024-01-12';
+--Tampilkan produk termahal ke termurah--;
+select product_name, price from products
+order by price desc;
+--Hitung total omzet dari seluruh pesanan--;
+select sum(total_amount) as total_omzet from orders; 
+--Hitung jumlah pesanan per pelanggan--;
+select customer_id, count(*) as jumlah_pesanan from orders
+group by customer_id;
+--Tampilkan : Nama Pelanggan, Tanggal Pesanan, Total Belanja--;
+select customers.customer_name, orders.order_date, orders.total_amount as total_belanja from orders
+join customers on orders.customer_id = customers.customer_id;
+--Tampilkan : Nama Produk, Jumlah terjual--;
+select products.product_name, sum(order_items.quantity) as jumlah_terjual from order_items
+join products on order_items.product_id = products.product_id
+group by products.product_name;
+--Produk paling laku berdasarkan jumlah terjual--;
+select products.product_name, sum(order_items.quantity) as jumlah_terjual from order_items
+join products on order_items.product_id = products.product_id
+group by products.product_name
+order by jumlah_terjual desc;
+--Negara dengan total belanja terbesar--;
+select customers.country, sum(order_items.quantity) as jumlah_terjual from order_items
+join customers on order_items.product_id = product_id
+group by customers.country
+order by jumlah_terjual desc;
+--Statistik harga produk--;
+select 
+min(price) as min_price,
+max(price) as max_price,
+avg(price) as avg_price
+from products;
+--Total omzet per bulan--;
+select date_format(order_date, '%y-%m') as month,
+sum(total_amount) as total_omzet from orders
+group by month
+order by month;
+--Produk terlaris per bulan--;
+select date_format(orders.order_date, '%y-%m') as month,
+products.product_name, sum(order_items.quantity) as jumlah_terjual from orders
+join order_items on orders.order_id = order_items.order_id
+join products on order_items.product_id = products.product_id
+group by month, products.product_name
+order by month, jumlah_terjual desc;
 ```
 
 ## 4. Insights
@@ -69,8 +91,10 @@ Berdasarkan hasil analisis SQL, diperoleh beberapa insight penting:
 * Produk dengan harga tinggi berkontribusi signifikan terhadap total omzet
 * Terdapat pelanggan dengan frekuensi pemesanan tinggi yang berpotensi menjadi pelanggan loyal
 * Data pemesanan setelah Januari 2024 menunjukkan potensi peningkatan aktivitas transaksi
+* Beberapa produk populer sering dipesan bersama pelanggan tertentu
+* Tren omzet bulanan dapat menunjukkan seasonality dan pola musiman penjualan
 
-Insight ini menunjukkan bahwa strategi bisnis sebaiknya tidak hanya fokus pada volume pesanan, tetapi juga pada nilai transaksi.
+Insight ini menunjukkan bahwa strategi bisnis sebaiknya tidak hanya fokus pada volume pesanan, tetapi juga pada nilai transaksi dan tren waktu.
 
 ## 5. Business Recommendations
 
@@ -88,8 +112,11 @@ Berdasarkan insight di atas, rekomendasi bisnis yang dapat diberikan:
 4. **Analisis Lanjutan**
    Disarankan analisis lanjutan berbasis waktu (bulanan / kuartalan) untuk melihat tren penjualan
 
+5. **Produk Promosi Musiman**
+   Fokuskan kampanye marketing pada produk yang paling banyak dibeli pada bulan tertentu untuk meningkatkan penjualan musiman
+
 ---
 
 📌 **Tools**: SQL (MySQL / PostgreSQL)
-📌 **Skill Highlighted**: Data Analysis, Aggregation, JOIN, Business Insight
+📌 **Skill Highlighted**: Data Analysis, Aggregation, JOIN, Business Insight, Trend Analysis
 📌 **Level**: Beginner – Intermediate
